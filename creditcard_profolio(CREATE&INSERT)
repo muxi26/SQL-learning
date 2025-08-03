@@ -1,0 +1,57 @@
+CREATE DATABASE creditcard_profolio;
+SHOW DATABASES;
+USE creditcard_profolio;
+
+CREATE TABLE customers (
+    customer_id INT PRIMARY KEY AUTO_INCREMENT, 
+    cc_num INT,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    gender TEXT,
+    street VARCHAR(100) NOT NULL,
+    city VARCHAR(50) NOT NULL,
+    state VARCHAR(50) NOT NULL,
+    zip VARCHAR(20),
+    customer_lat REAL,
+    customer_long REAL,
+    city_pop INT,
+    dob DATETIME,
+    job VARCHAR(100)
+);
+
+ALTER TABLE customers
+MODIFY cc_num VARCHAR(20) UNIQUE;
+
+CREATE TABLE transaction (
+    trans_num VARCHAR(100) PRIMARY KEY,
+    trans_date_trans_time DATE,
+    amt REAL,
+    customer_id INT,
+    merchant_id INT,
+    unix_time VARCHAR(50),
+    is_fraud INTEGER DEFAULT 1,
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id),
+    FOREIGN KEY (merchant_id) REFERENCES merchant(merchant_id)
+);
+
+CREATE TABLE merchant(
+	merchant_id INT PRIMARY KEY AUTO_INCREMENT,
+    merchant VARCHAR(100),
+    category VARCHAR(50),
+    merch_lat REAL,
+    merch_long REAL
+);
+
+INSERT INTO customers (cc_num, first_name, last_name, gender, street, city, state, zip, customer_lat, customer_long, city_pop, job, dob) VALUES 
+('2291163933867244', 'Jeff', 'Elliott' ,'M', '351 Darlene Green', 'Columbia', 'SC',	'29209', '33.9659', '-80.9355', '333497', 'Mechanical engineer', '1968-03-19'),
+('3573030041201292', 'Joanne', 'Williams', 'F', '3638 Marsh Union', 'Altonah', 'UT', '84002', '40.3207', '-110.436', '302', 'Sales professional, IT', '1990-01-17'),
+('3598215285024754', 'Ashley', 'Lopez', 'F', '9333 Valentine Point', 'Bellmore', 'NY', '11710', '40.6729', '-73.5365', '34496', 'Librarian, public', '1970-10-21'),
+('3591919803438423', 'Brian', 'Williams', 'M', '32941 Krystal Mill Apt. 552', 'Titusville', 'FL', '32780', '28.5697', '-80.8191', '54767', 'Set designer', '1987-07-25'),
+('3526826139003047', 'Nathan', 'Massey', 'M', '5783 Evan Roads Apt. 465', 'Falmouth', 'MI', '49632', '44.2529', '-85.017', '1126', 'Furniture designer', '1955-07-06'),
+('30407675418785', 'Danielle', 'Evans', 'F', '76752 David Lodge Apt. 064', 'Breesport', 'NY', '14816', '42.1939', '-76.7361', '520', 'Psychotherapist', '1991-10-13'),
+('213180742685905', 'Kayla', 'Sutton', 'F', '010 Weaver Land', 'Carlotta', 'CA', '95528', '40.507', '-123.9743', '1139', 'Therapist, occupational', '1951-01-15'),
+('3589289942931264', 'Paula', 'Estrada', 'F', '350 Stacy Glens', 'Spencer', 'SD', '57374', '43.7557', '-97.5936', '343', 'Development worker, international aid', '1972-03-05'),
+('3596357274378601', 'David', 'Everett', 'M', '4138 David Fall', 'Morrisdale', 'PA', '16858', '41.0001', '-78.2357', '3688', 'Advice worker', '1973-05-27'),
+('3546897637165774', 'Kayla', 'Obrien', 'F', '7921 Robert Port Suite 343', 'Prairie Hill', 'TX', '76678', '31.6591', '-96.8094', '263', 'Barrister', '1956-05-30'),
+('2242542703101233', 'Samuel', 'Jenkins', 'M', 'Mckenzie Views Apt. 837', 'Westport', 'KY', '40077', '38.4921', '-85.4524', '564', 'Pensions consultant', '1996-04-10');
+SELECT * FROM customers;
