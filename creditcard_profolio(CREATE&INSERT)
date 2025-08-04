@@ -3,7 +3,7 @@ SHOW DATABASES;
 USE creditcard_profolio;
 
 CREATE TABLE customers (
-    customer_id INT PRIMARY KEY AUTO_INCREMENT, 
+    customer_id INT PRIMARY KEY, 
     cc_num INT,
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
@@ -18,9 +18,22 @@ CREATE TABLE customers (
     dob DATETIME,
     job VARCHAR(100)
 );
+DROP TABLE IF EXISTS transaction;
+DROP TABLE IF EXISTS merchant;
+DROP TABLE IF EXISTS customers;
+
+CREATE TABLE merchant(
+    merchant_id INT Primary key auto_increment,
+    merchant VARCHAR(100),
+    category VARCHAR(50),
+    merch_lat REAL,
+    merch_long REAL
+);
 
 ALTER TABLE customers
-MODIFY cc_num VARCHAR(20) UNIQUE;
+MODIFY cc_num VARCHAR(100);
+ALTER TABLE transaction
+MODIFY customer_id INT Auto_increment;
 
 CREATE TABLE transaction (
     trans_num VARCHAR(100) PRIMARY KEY,
@@ -33,14 +46,8 @@ CREATE TABLE transaction (
     FOREIGN KEY (customer_id) REFERENCES customers(customer_id),
     FOREIGN KEY (merchant_id) REFERENCES merchant(merchant_id)
 );
-
-CREATE TABLE merchant(
-	merchant_id INT PRIMARY KEY AUTO_INCREMENT,
-    merchant VARCHAR(100),
-    category VARCHAR(50),
-    merch_lat REAL,
-    merch_long REAL
-);
+ALTER TABLE transaction
+MODIFY trans_date_trans_time DATETIME;
 
 INSERT INTO customers (cc_num, first_name, last_name, gender, street, city, state, zip, customer_lat, customer_long, city_pop, job, dob) VALUES 
 ('2291163933867244', 'Jeff', 'Elliott' ,'M', '351 Darlene Green', 'Columbia', 'SC',	'29209', '33.9659', '-80.9355', '333497', 'Mechanical engineer', '1968-03-19'),
@@ -55,3 +62,52 @@ INSERT INTO customers (cc_num, first_name, last_name, gender, street, city, stat
 ('3546897637165774', 'Kayla', 'Obrien', 'F', '7921 Robert Port Suite 343', 'Prairie Hill', 'TX', '76678', '31.6591', '-96.8094', '263', 'Barrister', '1956-05-30'),
 ('2242542703101233', 'Samuel', 'Jenkins', 'M', 'Mckenzie Views Apt. 837', 'Westport', 'KY', '40077', '38.4921', '-85.4524', '564', 'Pensions consultant', '1996-04-10');
 SELECT * FROM customers;
+DELETE FROM customers;
+
+#------
+SELECT * FROM raw_fraud_data;
+ALTER TABLE raw_fraud_data
+CHANGE COLUMN first first_name VARCHAR(100);
+ALTER TABLE raw_fraud_data
+CHANGE COLUMN last last_name VARCHAR(100);
+ALTER TABLE raw_fraud_data
+CHANGE COLUMN lat customer_lat VARCHAR(100);
+ALTER TABLE raw_fraud_data
+CHANGE COLUMN `long` customer_long VARCHAR(100);
+ALTER TABLE raw_fraud_data
+CHANGE COLUMN `index` `customer_id` Int;
+ALTER TABLE customers
+MODIFY COLUMN customer_id INT NOT NULL;
+ALTER TABLE customers DROP INDEX cc_num;
+
+
+-- INSERT DATA TO EACH TABLE --
+INSERT INTO customers (
+  customer_id, cc_num, first_name, last_name, gender, dob, job,
+  street, city, state, zip, customer_lat, customer_long, city_pop
+)
+SELECT DISTINCT
+  customer_id, cc_num, first_name, last_name, gender, dob, job,
+  street, city, state, zip, customer_lat, customer_long, city_pop
+FROM raw_fraud_data;
+
+INSERT INTO merchant (merchant, category, merch_lat, merch_long)
+SELECT DISTINCT
+    merchant, category, merch_lat, merch_long
+FROM raw_fraud_data;
+SELECT * FROM merchant;
+
+INSERT INTO transaction (
+	trans_num, trans_date_trans_time, amt , customer_id , merchant_id , unix_time, is_fraud )
+SELECT DISTINCT
+	trans_num, trans_date_trans_time, amt , customer_id , merchant_id , unix_time, is_fraud 
+FROM raw_fraud_data;
+
+
+INSERT INTO transaction (
+	trans_num, trans_date_trans_time, amt , customer_id , unix_time, is_fraud )
+SELECT DISTINCT
+	trans_num, trans_date_trans_time, amt , customer_id , unix_time, is_fraud 
+FROM raw_fraud_data ;
+
+SELECT * FROM transaction;
